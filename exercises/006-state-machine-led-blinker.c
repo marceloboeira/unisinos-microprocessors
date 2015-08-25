@@ -40,7 +40,7 @@ int STATE = 0;
 
 void delay(int time) {
   int i = 0;
-  for (i = 0; i < time * 1000000; i++);
+  for (i = 0; i < time * 500000; i++);
 }
 
 void blink(Led led) {
