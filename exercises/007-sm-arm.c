@@ -46,7 +46,7 @@ typedef struct {
 Product PRODUCTS[PRODUCTS_AMOUNT];
 int SELECTED_PRODUCT = 0;
 
-int CURRENT_VALUE = 10;
+int CURRENT_VALUE = 0;
 
 void delay(int time) {
   int i = 0;
@@ -136,8 +136,6 @@ void productSelectionHandler() {
   setCurrentStateTo(PURCHASE_CONFIRMATION_HANDLER);
 }
 
-
-
 void keyboardHandler() {
   btnLeft = btnRight = btnUp = btnDown = 0;
   btnRight = (GPIOPinRead(PORT_E, PIN_0) & 0x01) != 0x01;
@@ -195,24 +193,27 @@ void purchaseConfirmationHandler() {
 
   if (newValue < 0) {
 	displayUpdateCurrentMessage("Not enough money");
+	setCurrentStateTo(PRODUCT_SELECTION_HANDLER);
   }
   else if (!hasProductOnInventory(SELECTED_PRODUCT)){
 	displayUpdateCurrentMessage("Out of stock");
+	setCurrentStateTo(PRODUCT_SELECTION_HANDLER);
   }
   else {
-	CURRENT_VALUE = newValue;
-	PRODUCTS[SELECTED_PRODUCT].amount = PRODUCTS[SELECTED_PRODUCT].amount - 1;
 	displayUpdateCurrentMessage("Thanks!");
 	delay(5);
+	PRODUCTS[SELECTED_PRODUCT].amount = PRODUCTS[SELECTED_PRODUCT].amount - 1;
 
+	CURRENT_VALUE = newValue;
 	unsigned char buffer[10];
 	sprintf(buffer, "Change: $ %i", CURRENT_VALUE);
 	displayUpdateCurrentMessage(buffer);
 	CURRENT_VALUE = 0;
+
+	setCurrentStateTo(MONEY_WAITING_HANDLER);
   }
 
   delay(10);
-  setCurrentStateTo(MONEY_WAITING_HANDLER);
 }
 
 void bootHandler() {
@@ -230,7 +231,6 @@ int main(){
        case MONEY_WAITING_HANDLER: moneyWaitingHandler(); break;
        case PRODUCT_SELECTION_HANDLER: productionSelectionHandler(); break;
        case PURCHASE_CONFIRMATION_HANDLER: purchaseConfirmationHandler(); break;
-      // case OPERATION_CANCELING_HANDLER: cancelOperaionHandler(); break;
        default: setCurrentStateTo(BOOT_HANDLER); break;
     }
   }
