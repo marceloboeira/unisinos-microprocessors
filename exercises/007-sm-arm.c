@@ -8,8 +8,7 @@
 #include <driverlib/gpio.h>
 #include <driverlib/adc.h>
 #include <driverlib/debug.h>
-#include "rit128x96x4.h"
-
+#include <rit128x96x4.h>
 
 // HARDWARE DEFINITIONS
 #define DEFAULT_STRENGTH GPIO_STRENGTH_2MA
@@ -81,13 +80,12 @@ void _setupDisplay() {
 
 }
 
-
 void _setupProducts(){
   PRODUCTS[0].name = "Water";
   PRODUCTS[0].amount = 10;
   PRODUCTS[0].price = 1;
-  PRODUCTS[1].name = "Coca ";
-  PRODUCTS[1].amount = 2;
+  PRODUCTS[1].name = "Coke ";
+  PRODUCTS[1].amount = 1;
   PRODUCTS[1].price = 2;
 }
 
@@ -109,11 +107,9 @@ int isAValidSelectedProduct() {
 void displayUpdateProductList() {
   int i = 0, yBase = 28, yJump = 10, listCounter = 0;
   for(i = 0; i < PRODUCTS_AMOUNT; i++) {
-    if (PRODUCTS[i].amount > 0) {
-    	unsigned char buffer[30];
-    	sprintf(buffer, "%02i | %s   | $ %i", PRODUCTS[i].amount, PRODUCTS[i].name, PRODUCTS[i].price);
-    	RIT128x96x4StringDraw(buffer, 0, (yBase + (yJump * listCounter++)), 15);
-    }
+    unsigned char buffer[30];
+    sprintf(buffer, "%02i | %s   | $ %i", PRODUCTS[i].amount, PRODUCTS[i].name, PRODUCTS[i].price);
+    RIT128x96x4StringDraw(buffer, 0, (yBase + (yJump * listCounter++)), 15);
   }
 }
 
@@ -123,24 +119,15 @@ void displayUpdateCurrentValue() {
   RIT128x96x4StringDraw(buffer, 0, 85, 15);
 }
 
-
-void displayUpdateCurrentMessage() {
-  char* buffer;
-
-  if (STATE == MONEY_WAITING_HANDLER)
-    buffer = "Insert money!           ";
-  else if (STATE == PRODUCT_SELECTION_HANDLER)
-    buffer = "Choose a product!       ";
-  else
-	buffer = "Wait ...                ";
-
+void displayClearCurrentMessage() {
+  RIT128x96x4StringDraw("                        ", 0, 60, 15);
+}
+void displayUpdateCurrentMessage(char* buffer) {
+  displayClearCurrentMessage();
   RIT128x96x4StringDraw(buffer, 0, 60, 15);
 }
 
-
-
 void displayUpdateSelectedProduct() {
-
   RIT128x96x4StringDraw(PRODUCTS[SELECTED_PRODUCT].name, 0, 85, 15);
 }
 
@@ -150,26 +137,20 @@ void productSelectionHandler() {
 }
 
 
-void purchaseConfirmationHandler() {
-  CURRENT_VALUE = CURRENT_VALUE - PRODUCTS[SELECTED_PRODUCT].price;
-  PRODUCTS[SELECTED_PRODUCT].amount = PRODUCTS[SELECTED_PRODUCT].amount - 1;
-
-  SELECTED_PRODUCT = -1;
-  setCurrentStateTo(MONEY_WAITING_HANDLER);
-}
 
 void keyboardHandler() {
   btnLeft = btnRight = btnUp = btnDown = 0;
   btnRight = (GPIOPinRead(PORT_E, PIN_0) & 0x01) != 0x01;
   btnLeft = (GPIOPinRead(PORT_E, PIN_1) & 0x02) != 0x02;
-  btnUp    = (GPIOPinRead(PORT_E, PIN_2) & 0x04) != 0x04;
-  btnDown  = (GPIOPinRead(PORT_E, PIN_3) & 0x08) != 0x08;
+  btnUp = (GPIOPinRead(PORT_E, PIN_2) & 0x04) != 0x04;
+  btnDown = (GPIOPinRead(PORT_E, PIN_3) & 0x08) != 0x08;
 }
 
 void moneyWaitingHandler() {
-  displayUpdateCurrentMessage();
+  displayUpdateCurrentMessage("Insert money");
   displayUpdateProductList();
   displayUpdateCurrentValue();
+
   while (!btnRight) {
     keyboardHandler();
 	if (btnUp) {
@@ -183,8 +164,9 @@ void moneyWaitingHandler() {
 }
 
 void productionSelectionHandler() {
-  displayUpdateCurrentMessage();
+  displayUpdateCurrentMessage("Choose a product");
   displayUpdateSelectedProduct();
+
   while (!btnRight) {
     keyboardHandler();
 	if (btnUp) {
@@ -196,6 +178,40 @@ void productionSelectionHandler() {
 	delay(1);
   }
   keyboardHandler();
+  setCurrentStateTo(PURCHASE_CONFIRMATION_HANDLER);
+}
+
+void purchaseConfirmationHandler() {
+  displayUpdateCurrentMessage("Wait");
+  delay(2);
+  displayUpdateCurrentMessage("Wait.");
+  delay(2);
+  displayUpdateCurrentMessage("Wait..");
+  delay(2);
+  displayUpdateCurrentMessage("Wait...");
+  delay(2);
+
+  int newValue = CURRENT_VALUE - PRODUCTS[SELECTED_PRODUCT].price;
+
+  if (newValue < 0) {
+	displayUpdateCurrentMessage("Not enough money");
+  }
+  else if (!hasProductOnInventory(SELECTED_PRODUCT)){
+	displayUpdateCurrentMessage("Out of stock");
+  }
+  else {
+	CURRENT_VALUE = newValue;
+	PRODUCTS[SELECTED_PRODUCT].amount = PRODUCTS[SELECTED_PRODUCT].amount - 1;
+	displayUpdateCurrentMessage("Thanks!");
+	delay(5);
+
+	unsigned char buffer[10];
+	sprintf(buffer, "Change: $ %i", CURRENT_VALUE);
+	displayUpdateCurrentMessage(buffer);
+	CURRENT_VALUE = 0;
+  }
+
+  delay(10);
   setCurrentStateTo(MONEY_WAITING_HANDLER);
 }
 
@@ -213,7 +229,7 @@ int main(){
        case BOOT_HANDLER: bootHandler(); break;
        case MONEY_WAITING_HANDLER: moneyWaitingHandler(); break;
        case PRODUCT_SELECTION_HANDLER: productionSelectionHandler(); break;
-      // case PURCHASE_CONFIRMATION_HANDLER: purchaseHandler(); break;
+       case PURCHASE_CONFIRMATION_HANDLER: purchaseConfirmationHandler(); break;
       // case OPERATION_CANCELING_HANDLER: cancelOperaionHandler(); break;
        default: setCurrentStateTo(BOOT_HANDLER); break;
     }
