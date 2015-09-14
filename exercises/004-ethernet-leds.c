@@ -37,16 +37,16 @@ int main(){
 
   while (1) {
     btnAPressed = (GPIOPinRead(PORT_E, PIN_0) & 0x01) != 0x01;
-	btnBPressed = (GPIOPinRead(PORT_E, PIN_1) & 0x02) != 0x02;
+    btnBPressed = (GPIOPinRead(PORT_E, PIN_1) & 0x02) != 0x02;
 
-	if (btnAPressed)
-	  GPIOPinWrite(PORT_F, PIN_2, LOW);
-	else
-	  GPIOPinWrite(PORT_F, PIN_2, HIGH);
+    if (btnAPressed)
+      GPIOPinWrite(PORT_F, PIN_2, LOW);
+    else
+      GPIOPinWrite(PORT_F, PIN_2, HIGH);
 
-	if (btnBPressed)
-	  GPIOPinWrite(PORT_F, PIN_3, LOW);
-	else
-	  GPIOPinWrite(PORT_F, PIN_3, HIGH);
-	}
+    if (btnBPressed)
+      GPIOPinWrite(PORT_F, PIN_3, LOW);
+    else
+      GPIOPinWrite(PORT_F, PIN_3, HIGH);
+  }
 }
