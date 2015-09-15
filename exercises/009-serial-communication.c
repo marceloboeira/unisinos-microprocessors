@@ -42,7 +42,7 @@ void setup() {
   SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                          SYSCTL_XTAL_8MHZ);
 
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_UART1);
   SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
   GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
