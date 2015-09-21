@@ -19,6 +19,8 @@
 #define LOW 0x00
 #define B_HIGH 'a'
 #define B_LOW 'b'
+#define UART_BASE UART1_BASE
+#define SYS_UART SYSCTL_PERIPH_UART1
 
 int btnA = 0,
     led = 0,
@@ -44,11 +46,11 @@ void setup() {
   SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                          SYSCTL_XTAL_8MHZ);
 
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_UART1);
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-  GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+  SysCtlPeripheralEnable(SYS_UART);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+  GPIOPinTypeUART(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_3);
 
-  UARTConfigSetExpClk(UART1_BASE, SysCtlClockGet(), 115200,
+  UARTConfigSetExpClk(UART_BASE, SysCtlClockGet(), 115200,
 		  (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE));
 }
 
@@ -62,11 +64,11 @@ int main(void) {
     char buffer;
     char string[30];
 
-    UARTCharPut(UART1_BASE, '!');
+    UARTCharPut(UART_BASE, '!');
     RIT128x96x4Init(1000000);
 
     while (1) {
-      buffer = UARTCharGetNonBlocking(UART1_BASE);
+      buffer = UARTCharGetNonBlocking(UART_BASE);
       if (buffer != 255) {
         sprintf(string, "Input: %c", buffer);
         RIT128x96x4StringDraw(string, 12, 0, 15);
@@ -85,12 +87,12 @@ int main(void) {
       if (btnA) {
     	if (lastOutputChar == B_LOW) {
     	  sprintf(string, "Output: %c", B_HIGH);
-    	  UARTCharPut(UART1_BASE, B_HIGH);
+    	  UARTCharPut(UART_BASE, B_HIGH);
     	  lastOutputChar = 'a';
     	}
     	else {
     	  sprintf(string, "Output: %c", B_LOW);
-    	  UARTCharPut(UART1_BASE, B_LOW);
+    	  UARTCharPut(UART_BASE, B_LOW);
     	  lastOutputChar = B_LOW;
     	}
     	RIT128x96x4StringDraw(string, 12, 10, 15);
