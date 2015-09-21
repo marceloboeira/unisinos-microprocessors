@@ -17,10 +17,12 @@
 #define PIN_3 GPIO_PIN_3
 #define HIGH 0xFF
 #define LOW 0x00
+#define B_HIGH 'a'
+#define B_LOW 'b'
 
 int btnA = 0,
-	led = 0,
-	lastOutputChar = 'b';
+    led = 0,
+    lastOutputChar = B_LOW;
 
 void delay(int time) {
   int i = 0;
@@ -51,15 +53,14 @@ void setup() {
 }
 
 void keyboardHandler() {
-  btnA =  0;
+  btnA = 0;
   btnA = (GPIOPinRead(PORT_E, PIN_0) & 0x01) != 0x01;
 }
 
 int main(void) {
     setup();
-	char buffer;
+    char buffer;
     char string[30];
-
 
     UARTCharPut(UART1_BASE, '!');
     RIT128x96x4Init(1000000);
@@ -70,11 +71,11 @@ int main(void) {
         sprintf(string, "Input: %c", buffer);
         RIT128x96x4StringDraw(string, 12, 0, 15);
 
-        if (led == 0 && buffer == 'a') {
+        if (led == 0 && buffer == B_HIGH) {
           led = 1;
           GPIOPinWrite(PORT_F, PIN_0, HIGH);
         }
-        else if (led == 1 && buffer == 'b') {
+        else if (led == 1 && buffer == B_LOW) {
           led = 0;
           GPIOPinWrite(PORT_F, PIN_0, LOW);
         }
@@ -82,16 +83,16 @@ int main(void) {
 
       keyboardHandler();
       if (btnA) {
-    	if (lastOutputChar == 'b') {
-    		sprintf(string, "Output: %c", 'a');
-    	    UARTCharPut(UART1_BASE, 'a');
-    	    lastOutputChar = 'a';
-    	  }
-    	  else {
-    	    sprintf(string, "Output: %c", 'b');
-    	    UARTCharPut(UART1_BASE, 'b');
-    		lastOutputChar = 'b';
-    	  }
+    	if (lastOutputChar == B_LOW) {
+    	  sprintf(string, "Output: %c", B_HIGH);
+    	  UARTCharPut(UART1_BASE, B_HIGH);
+    	  lastOutputChar = 'a';
+    	}
+    	else {
+    	  sprintf(string, "Output: %c", B_LOW);
+    	  UARTCharPut(UART1_BASE, B_LOW);
+    	  lastOutputChar = B_LOW;
+    	}
     	RIT128x96x4StringDraw(string, 12, 10, 15);
     	delay(1);
       }
@@ -99,4 +100,3 @@ int main(void) {
 
    return(0);
 }
-
