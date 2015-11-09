@@ -35,7 +35,7 @@
 char (*g_cursorTemplate[])[] = { &"        ",
 		                 &"       ^",
 		                 &"    ^   ",
-		                 &" ^      "};
+		                 &" ^      " };
 
 int g_cursorPosition = CURSOR_POSITION_NONE;
 
@@ -63,16 +63,16 @@ void renderDisplay() {
     minutes = minutes - hours * 60;
   }
 
-
-  sprintf(buffer, "%02i:%02i:%02i", hours, minutes, seconds);
-  RIT128x96x4StringDraw(buffer, 42, 32, 15);
-
+  // Button events
   updateCursorPosition(g_button);
   updateGlobalSeconds(g_button);
   g_button = BTN_NONE;
 
-
+  // Render display components
+  sprintf(buffer, "%02i:%02i:%02i", hours, minutes, seconds);
+  RIT128x96x4StringDraw(buffer, 42, 32, 15);
   RIT128x96x4StringDraw(g_cursorTemplate[g_cursorPosition], 42, 41 , 15);
+
 }
 
 void updateCursorPosition(int btn) {
@@ -87,7 +87,7 @@ void updateGlobalSeconds(int btn) {
   int increaseFactor = 0;
 
   switch (g_cursorPosition) {
-    case CURSOR_POSITION_SECONDS: increaseFactor = 1; break;
+    case CURSOR_POSITION_SECONDS: increaseFactor =  1; break;
     case CURSOR_POSITION_MINUTES: increaseFactor = 60; break;
     case CURSOR_POSITION_HOURS: increaseFactor = 3600; break;
     case CURSOR_POSITION_NONE:
