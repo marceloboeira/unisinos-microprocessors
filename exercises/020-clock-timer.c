@@ -27,16 +27,15 @@
 #define BTN_UP 3
 #define BTN_DOWN 5
 
-
 #define CURSOR_POSITION_NONE 0
 #define CURSOR_POSITION_SECONDS 1
 #define CURSOR_POSITION_MINUTES 2
 #define CURSOR_POSITION_HOURS 3
 
 char (*g_cursorTemplate[])[] = { &"        ",
-		                         &"       ^",
-		                         &"    ^   ",
-		                         &" ^      "};
+		                 &"       ^",
+		                 &"    ^   ",
+		                 &" ^      "};
 
 int g_cursorPosition = CURSOR_POSITION_NONE;
 
@@ -55,13 +54,13 @@ void renderDisplay() {
   seconds = g_seconds;
 
   if (seconds >= 60) {
-	minutes = seconds / 60;
-	seconds = seconds - minutes * 60;
+    minutes = seconds / 60;
+    seconds = seconds - minutes * 60;
   }
 
   if (minutes >= 60) {
-	hours = minutes / 60;
-	minutes = minutes - hours * 60;
+    hours = minutes / 60;
+    minutes = minutes - hours * 60;
   }
 
 
@@ -73,7 +72,7 @@ void renderDisplay() {
   g_button = BTN_NONE;
 
 
-  RIT128x96x4StringDraw(g_cursorTemplate[g_cursorPosition], 42, 40 , 15);
+  RIT128x96x4StringDraw(g_cursorTemplate[g_cursorPosition], 42, 41 , 15);
 }
 
 void updateCursorPosition(int btn) {
@@ -88,11 +87,11 @@ void updateGlobalSeconds(int btn) {
   int increaseFactor = 0;
 
   switch (g_cursorPosition) {
-  	case CURSOR_POSITION_SECONDS: increaseFactor = 1; break;
-  	case CURSOR_POSITION_MINUTES: increaseFactor = 60; break;
-  	case CURSOR_POSITION_HOURS: increaseFactor = 3600; break;
-  	case CURSOR_POSITION_NONE:
-  	default: increaseFactor = 0; break;
+    case CURSOR_POSITION_SECONDS: increaseFactor = 1; break;
+    case CURSOR_POSITION_MINUTES: increaseFactor = 60; break;
+    case CURSOR_POSITION_HOURS: increaseFactor = 3600; break;
+    case CURSOR_POSITION_NONE:
+    default: increaseFactor = 0; break;
   }
 
   if (btn == BTN_UP) g_seconds += increaseFactor;
@@ -107,7 +106,6 @@ void clockTimerHandler(void) {
 }
 
 void keyboardHandler(void) {
-
   if ((GPIOPinRead(PORT_E, PIN_0) & 0x01) != 0x01)      g_button = BTN_UP;
   else if ((GPIOPinRead(PORT_E, PIN_1) & 0x02) != 0x02) g_button = BTN_DOWN;
   else if ((GPIOPinRead(PORT_E, PIN_2) & 0x04) != 0x04) g_button = BTN_LEFT;
@@ -143,8 +141,6 @@ void setup() {
   IntEnable(INT_GPIOE);
   IntPrioritySet(INT_GPIOE, 0x00);
 }
-
-
 
 void loop() {
   renderDisplay();
