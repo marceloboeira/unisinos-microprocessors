@@ -8,7 +8,6 @@
 #include "driverlib/timer.h"
 #include "rit128x96x4.h"
 
-
 // HARDWARE DEFINITIONS
 #define DEFAULT_STRENGTH GPIO_STRENGTH_2MA
 #define DEFAULT_PULL_TYPE GPIO_PIN_TYPE_STD_WPU
@@ -33,9 +32,9 @@
 #define CURSOR_POSITION_HOURS 3
 
 char (*g_cursorTemplate[])[] = { &"        ",
-		                 &"       ^",
-		                 &"    ^   ",
-		                 &" ^      " };
+        	                  &"       ^",
+        	                  &"    ^   ",
+        	                  &" ^      " };
 
 int g_cursorPosition = CURSOR_POSITION_NONE;
 
@@ -47,7 +46,6 @@ char buffer[20];
 #ifdef DEBUG
 void __error__(char *pcFilename, unsigned long ulLine) { }
 #endif
-
 
 void renderDisplay() {
   int seconds = 0, minutes = 0, hours = 0;
